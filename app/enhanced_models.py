@@ -11,11 +11,7 @@ import joblib
 import os
 from pathlib import Path
 
-from app.utils import get_env_var
-from app.patent_algorithms import (
-    binary_classifier, audio_image_converter, enneagram_profiler,
-    vibrational_analyzer, stress_analyzer
-)
+from .utils import get_env_var
 
 logger = logging.getLogger(__name__)
 
@@ -75,17 +71,37 @@ class EnhancedEmotionModel:
     
     def __init__(self):
         self.version = "enhanced_emotion_v1"
-        self.emotion_keys = [f"emo{i}" for i in range(1, 39)]  # Support 38 emotions
+        self.emotion_keys = [f"emo{i}" for i in range(1, 27)]
+        self.meta_emotion_keys = ["emo29", "emo31", "emo32"]  # Customer pillars
+        self.extended_emotion_keys = ["emo27", "emo28", "emo30"] + [f"emo{i}" for i in range(33, 39)]  # Missing emotions
         self.bigfive_mapper = EnhancedBigFiveMapper()
         
         # Load trained model if available
         model_path = "models/emotion_model_rf.pkl"
-        if os.path.exists(model_path):
-            self.model = joblib.load(model_path)
-            logger.info(f"✅ Loaded trained emotion model from {model_path}")
-        else:
-            logger.warning("⚠️ Using fallback emotion model")
-            self.model = None
+        
+        # Try multiple possible paths for the model file
+        possible_paths = [
+            model_path,
+            f"production_package/{model_path}",
+            f"../{model_path}",
+            "./models/emotion_model_rf.pkl"
+        ]
+        
+        self.model = None
+        for path in possible_paths:
+            if os.path.exists(path):
+                try:
+                    self.model = joblib.load(path)
+                    logger.info(f"✅ Loaded trained emotion model from {path}")
+                    break
+                except Exception as e:
+                    logger.warning(f"Failed to load model from {path}: {e}")
+                    continue
+        
+        if self.model is None:
+            logger.warning("⚠️ Using fallback emotion model - trained model not found")
+            logger.warning(f"Searched paths: {possible_paths}")
+            logger.warning(f"Current working directory: {os.getcwd()}")
     
     def predict(self, features: np.ndarray, audio_metadata: Dict[str, Any]) -> Dict[str, float]:
         """Enhanced emotion prediction with psychological consistency"""
@@ -105,16 +121,21 @@ class EnhancedEmotionModel:
         # Enhance predictions with psychological insights
         enhanced_predictions = self._enhance_with_psychology(base_predictions, features)
         
-        # Create emotion dictionary for emo1-emo38
+        # Create emotion dictionary
         emotion_scores = {
             key: float(score) for key, score in zip(self.emotion_keys, enhanced_predictions)
         }
         
-        # Calculate additional vibrational intelligence categories
-        vibrational_scores = self._calculate_vibrational_intelligence(features, enhanced_predictions)
-        emotion_scores.update(vibrational_scores)
+        # Add meta-emotions for customer pillars
+        meta_emotions = self._calculate_meta_emotions(emotion_scores, audio_metadata)
+        emotion_scores.update(meta_emotions)
         
-        logger.debug(f"✅ Enhanced emotion prediction complete: {len(emotion_scores)} emotions")
+        # Add extended emotions (calculated from existing emotions)
+        extended_emotions = self._calculate_extended_emotions(emotion_scores, audio_metadata)
+        emotion_scores.update(extended_emotions)
+        
+        total_meta = len(meta_emotions) + len(extended_emotions)
+        logger.debug(f"✅ Enhanced emotion prediction complete: {len(emotion_scores)} emotions (includes {total_meta} calculated)")
         return emotion_scores
     
     def _enhance_with_psychology(self, base_predictions: np.ndarray, features: np.ndarray) -> np.ndarray:
@@ -134,8 +155,8 @@ class EnhancedEmotionModel:
             feature_means = [0.5] * 5
         feature_means = feature_means[:5] if len(feature_means) >= 5 else list(feature_means) + [0.5] * (5 - len(feature_means))
         
-        # Normalize to [0,1] 
-        estimated_bigfive = np.clip(feature_means, 0, 1)
+        # Normalize to [0,1] - ensure it's a numpy array
+        estimated_bigfive = np.clip(np.array(feature_means), 0.0, 1.0)
         
         # Apply psychological constraints
         enhanced = base_predictions.copy()
@@ -156,51 +177,141 @@ class EnhancedEmotionModel:
         
         return np.clip(enhanced, 0.0, 1.0)
     
-    def _fallback_predict(self, features: np.ndarray) -> np.ndarray:
-        """Fallback prediction when model unavailable"""
-        feature_hash = hash(features.tobytes()) % 1000000
-        np.random.seed(feature_hash)
-        return np.random.beta(2, 2, len(self.emotion_keys))
-    
-    def _calculate_vibrational_intelligence(self, features: np.ndarray, emotions: np.ndarray) -> Dict[str, float]:
-        """Calculate vibrational intelligence categories: management, expression, self_awareness, empathy"""
+    def _calculate_meta_emotions(self, base_emotions: Dict[str, float], audio_metadata: Dict[str, Any]) -> Dict[str, float]:
+        """
+        Calculate meta-emotions (emo29, emo31, emo32) from base emotions.
+        These are the customer's required pillars.
+        """
         
-        # Calculate based on audio features and emotion patterns
-        feature_mean = np.mean(np.abs(features)) if len(features) > 0 else 0.5
-        feature_std = np.std(features) if len(features) > 0 else 0.1
+        # emo29: positive_overall (0-300 scale) - Customer calls this "empathy"
+        # Calculate from positive emotions: happiness, calm, love, confidence
+        positive_emotions = ['emo1', 'emo5', 'emo6', 'emo17']  # happiness, calm, love, confidence
+        positive_score = sum(base_emotions.get(emo, 0.0) for emo in positive_emotions) / len(positive_emotions)
+        emo29_raw = positive_score * 300.0  # Scale to 0-300 (original scale)
+        emo29 = min(100.0, emo29_raw / 3.0)  # Normalize to 0-100 for customer compatibility
         
-        # Use normalized emotions (0-1 scale) for calculation
-        emotion_values = emotions[:min(26, len(emotions))] if len(emotions) > 0 else np.array([0.5] * 26)
-        emotion_variance = np.var(emotion_values)
-        emotion_mean = np.mean(emotion_values)
-        emotion_max = np.max(emotion_values) if len(emotion_values) > 0 else 0.5
+        # emo31: self_expression (0-100 scale) - Customer calls this "Self-Expression"  
+        # Based on confidence, drive, and expressiveness emotions
+        expression_emotions = ['emo17', 'emo26', 'emo6', 'emo1']  # confidence, drive, love, happiness
+        expression_score = sum(base_emotions.get(emo, 0.0) for emo in expression_emotions) / len(expression_emotions)
+        emo31 = max(10.0, min(100.0, expression_score * 100.0))  # Direct expression score to 0-100 scale
         
-        # Create deterministic but varied scores based on feature hash
-        feature_hash = hash(features.tobytes()) % 1000 if len(features) > 0 else 500
-        base_seed = feature_hash / 1000.0  # 0-1 range
-        
-        # Management: ability to regulate emotions (stability + feature consistency)
-        stability_factor = 1.0 / (1.0 + emotion_variance * 5)
-        management = min(100.0, max(15.0, stability_factor * 60 + base_seed * 40 + (1.0 - feature_std) * 20))
-        
-        # Expression: emotional expressiveness (intensity + variation)
-        intensity_factor = (emotion_mean + emotion_max) / 2
-        expression = min(100.0, max(10.0, intensity_factor * 70 + feature_mean * 30 + base_seed * 25))
-        
-        # Self-awareness: emotional insight (diversity + complexity)
-        complexity_factor = emotion_variance + feature_std
-        self_awareness = min(100.0, max(20.0, complexity_factor * 80 + base_seed * 30 + emotion_mean * 15))
-        
-        # Empathy: sensitivity to others (emotional range + responsiveness)
-        sensitivity_factor = (emotion_variance + emotion_mean) / 2
-        empathy = min(100.0, max(12.0, sensitivity_factor * 65 + feature_mean * 25 + base_seed * 35))
+        # emo32: control_score (0-100 scale) - Customer calls this "Self-Management"
+        # Use control indicators directly without subtraction
+        control_indicators = ['emo5', 'emo17']  # calm, confidence  
+        control_score = sum(base_emotions.get(emo, 0.0) for emo in control_indicators) / len(control_indicators)
+        emo32 = max(15.0, min(100.0, control_score * 100.0))  # Direct control score to 0-100 scale
         
         return {
-            "management": float(management),
-            "expression": float(expression), 
-            "self_awareness": float(self_awareness),
-            "empathy": float(empathy)
+            'emo29': emo29,  # empathy (normalized 0-100)
+            'emo31': emo31,  # self_expression (0-100)
+            'emo32': emo32   # self_management (normalized 0-100)
         }
+    
+    def _calculate_extended_emotions(self, base_emotions: Dict[str, float], audio_metadata: Dict[str, Any]) -> Dict[str, float]:
+        """
+        Calculate extended emotions (emo27-emo28, emo30, emo33-emo38) from base emotions.
+        These provide complete Vibeonix compatibility with actual predictions instead of neutral values.
+        """
+        
+        # Helper function to safely get emotion values
+        def get_emo(key: str) -> float:
+            return base_emotions.get(key, 0.5)
+        
+        # emo27: coolness - Adaptive emotional regulation (confidence + calm - anger)
+        coolness = (get_emo('emo17') + get_emo('emo5') - get_emo('emo4')) / 3
+        coolness = max(0.0, min(1.0, coolness))
+        
+        # emo28: jealousy - Based on envy + loneliness - love
+        # Note: envy is emo21, loneliness is emo11, love is emo6
+        jealousy = (get_emo('emo21') + get_emo('emo11') - get_emo('emo6')) / 3
+        jealousy = max(0.0, min(1.0, jealousy))
+        
+        # emo30: negative_overall - Aggregate of negative emotions
+        negative_emotions = [
+            get_emo('emo4'),   # anger
+            get_emo('emo8'),   # down
+            get_emo('emo9'),   # sadness
+            get_emo('emo10'),  # fear
+            get_emo('emo11'),  # loneliness
+            get_emo('emo13'),  # doubt
+            get_emo('emo14'),  # overwhelmed
+            get_emo('emo18'),  # confused
+            get_emo('emo19'),  # frustration
+            get_emo('emo20'),  # melancholy
+            get_emo('emo21'),  # envy
+            get_emo('emo24'),  # despair
+            get_emo('emo25')   # exhausted
+        ]
+        negative_overall = sum(negative_emotions) / len(negative_emotions)
+        
+        # Fear spectrum emotions (emo33-emo38)
+        
+        # emo33: negative_stress - Opposite of positive stress, plus overwhelmed
+        negative_stress = (1.0 - get_emo('emo7') + get_emo('emo14') + get_emo('emo25')) / 3
+        negative_stress = max(0.0, min(1.0, negative_stress))
+        
+        # emo34: vigilance - Fear of losing identity (fear + alertness + doubt)
+        vigilance = (get_emo('emo10') + get_emo('emo15') + get_emo('emo13')) / 3
+        vigilance = max(0.0, min(1.0, vigilance))
+        
+        # emo35: fear_abandonment - Fear of separation (loneliness + fear + attachment issues)
+        fear_abandonment = (get_emo('emo11') + get_emo('emo10') + get_emo('emo16')) / 3  # loneliness + fear + longing
+        fear_abandonment = max(0.0, min(1.0, fear_abandonment))
+        
+        # emo36: fear_autonomy_loss - Fear of loss of autonomy (doubt + overwhelmed + low confidence)
+        fear_autonomy_loss = (get_emo('emo13') + get_emo('emo14') + (1.0 - get_emo('emo17'))) / 3
+        fear_autonomy_loss = max(0.0, min(1.0, fear_autonomy_loss))
+        
+        # emo37: fear_failure - Fear of failure (doubt + down + fear + low confidence)
+        fear_failure = (get_emo('emo13') + get_emo('emo8') + get_emo('emo10') + (1.0 - get_emo('emo17'))) / 4
+        fear_failure = max(0.0, min(1.0, fear_failure))
+        
+        # emo38: fear_physical_harm - Fear of physical/mental harm (fear + overwhelmed + vigilance)
+        fear_physical_harm = (get_emo('emo10') + get_emo('emo14') + vigilance) / 3
+        fear_physical_harm = max(0.0, min(1.0, fear_physical_harm))
+        
+        # Convert to 0-100 scale (base emotions are 0-1, extended should match)
+        extended_emotions = {
+            'emo27': coolness * 100.0,          # coolness
+            'emo28': jealousy * 100.0,          # jealousy
+            'emo30': negative_overall * 100.0,   # negative_overall
+            'emo33': negative_stress * 100.0,    # negative_stress
+            'emo34': vigilance * 100.0,          # vigilance
+            'emo35': fear_abandonment * 100.0,   # fear_abandonment
+            'emo36': fear_autonomy_loss * 100.0, # fear_autonomy_loss
+            'emo37': fear_failure * 100.0,       # fear_failure
+            'emo38': fear_physical_harm * 100.0  # fear_physical_harm
+        }
+        
+        return extended_emotions
+    
+    def _fallback_predict(self, features: np.ndarray) -> np.ndarray:
+        """Improved fallback prediction when model unavailable"""
+        # Use feature-based hashing for consistency
+        feature_hash = hash(features.tobytes()) % 1000000
+        np.random.seed(feature_hash)
+        
+        # Generate more realistic emotion scores
+        # Use mixture of distributions for more natural emotional profiles
+        scores = np.zeros(len(self.emotion_keys))
+        
+        # Base emotional state - moderate positive bias
+        base_scores = np.random.beta(3, 2, len(self.emotion_keys))  # Shifted toward higher values
+        
+        # Add some individual variation based on audio features
+        if len(features) > 0:
+            energy_proxy = float(np.mean(np.abs(features)))
+            # Higher energy -> more expressive emotions
+            energy_factor = min(1.5, 0.5 + energy_proxy)
+            
+            # Boost certain emotions based on energy
+            positive_emotions = [0, 5, 16]  # emo1 (happiness), emo6 (love), emo17 (confidence) 
+            for idx in positive_emotions:
+                if idx < len(base_scores):
+                    base_scores[idx] *= energy_factor
+        
+        return np.clip(base_scores, 0.0, 1.0)
 
 
 class EnhancedTraitModel:
@@ -213,12 +324,28 @@ class EnhancedTraitModel:
         
         # Load trained model if available
         model_path = "models/trait_model_rf.pkl"
-        if os.path.exists(model_path):
-            self.model = joblib.load(model_path)
-            logger.info(f"✅ Loaded trained trait model from {model_path}")
-        else:
-            logger.warning("⚠️ Using enhanced fallback trait model")
-            self.model = None
+        
+        # Try multiple possible paths for the model file
+        possible_paths = [
+            model_path,
+            f"production_package/{model_path}",
+            f"../{model_path}",
+            "./models/trait_model_rf.pkl"
+        ]
+        
+        self.model = None
+        for path in possible_paths:
+            if os.path.exists(path):
+                try:
+                    self.model = joblib.load(path)
+                    logger.info(f"✅ Loaded trained trait model from {path}")
+                    break
+                except Exception as e:
+                    logger.warning(f"Failed to load trait model from {path}: {e}")
+                    continue
+        
+        if self.model is None:
+            logger.warning("⚠️ Using enhanced fallback trait model - trained model not found")
     
     def predict(self, features: np.ndarray, audio_metadata: Dict[str, Any]) -> Dict[str, float]:
         """Enhanced trait prediction using Big Five mapping + blending"""
@@ -277,11 +404,11 @@ class EnhancedTraitModel:
             spectral_range = np.max(mfcc_features) - np.min(mfcc_features)
             
             # Rough personality estimates from voice characteristics
-            openness = min(1.0, variance * 2)  # Higher variance -> more open
-            conscientiousness = min(1.0, 1 - variance)  # Lower variance -> more conscientious  
-            extraversion = min(1.0, mean_energy * 1.5)  # Higher energy -> more extraverted
-            agreeableness = min(1.0, 0.5 + 0.3 * (1 - spectral_range))  # Smoother voice -> more agreeable
-            neuroticism = min(1.0, variance + 0.2 * spectral_range)  # More variation -> higher neuroticism
+            openness = min(1.0, float(variance * 2))  # Higher variance -> more open
+            conscientiousness = min(1.0, float(1 - variance))  # Lower variance -> more conscientious  
+            extraversion = min(1.0, float(mean_energy * 1.5))  # Higher energy -> more extraverted
+            agreeableness = min(1.0, float(0.5 + 0.3 * (1 - spectral_range)))  # Smoother voice -> more agreeable
+            neuroticism = min(1.0, float(variance + 0.2 * spectral_range))  # More variation -> higher neuroticism
             
             bigfive = np.array([openness, conscientiousness, extraversion, agreeableness, neuroticism])
             
@@ -299,11 +426,11 @@ class EnhancedTraitModel:
             spectral_range = np.max(mfcc_features) - np.min(mfcc_features)
             
             # Conservative estimates for limited features
-            openness = min(1.0, 0.3 + variance * 1.5)
-            conscientiousness = min(1.0, 0.4 + (1 - variance) * 0.6)
-            extraversion = min(1.0, 0.3 + mean_energy * 1.2)
-            agreeableness = min(1.0, 0.4 + 0.3 * (1 - spectral_range))
-            neuroticism = min(1.0, 0.2 + variance + 0.2 * spectral_range)
+            openness = min(1.0, float(0.3 + variance * 1.5))
+            conscientiousness = min(1.0, float(0.4 + (1 - variance) * 0.6))
+            extraversion = min(1.0, float(0.3 + mean_energy * 1.2))
+            agreeableness = min(1.0, float(0.4 + 0.3 * (1 - spectral_range)))
+            neuroticism = min(1.0, float(0.2 + variance + 0.2 * spectral_range))
             
             bigfive = np.array([openness, conscientiousness, extraversion, agreeableness, neuroticism])
         
@@ -341,136 +468,53 @@ class EnhancedTraitModel:
 
 
 class EnhancedModelManager:
-    """Patent-validated model manager with comprehensive voice analysis"""
+    """Enhanced model manager with psychological grounding"""
     
     def __init__(self):
         self.emotion_model = EnhancedEmotionModel()
         self.trait_model = EnhancedTraitModel()
-        self.version = "patent_enhanced_v2.0"
+        self.version = "enhanced_v1"
         
-        logger.info("✅ Patent-enhanced model manager initialized")
-        logger.info("   • 38 emotions with binary classification")
-        logger.info("   • Enneagram 9-archetype profiling")
-        logger.info("   • Vibrational frequency analysis")
-        logger.info("   • Stress response analysis (Fight/Flight/Freeze)")
-        logger.info("   • Wellbeing classification system")
+        logger.info("✅ Enhanced model manager initialized")
+        logger.info("   • Big Five -> char mapping loaded")
+        logger.info("   • Psychological constraints active")
+        logger.info("   • Blended prediction approach enabled")
     
-    def predict_all(self, features: np.ndarray, audio_metadata: Dict[str, Any]) -> tuple[Dict[str, float], Dict[str, float], Dict[str, Any]]:
-        """Patent-validated prediction with comprehensive analysis"""
+    def predict_all(self, features: np.ndarray, audio_metadata: Dict[str, Any]) -> tuple[Dict[str, float], Dict[str, float]]:
+        """Enhanced prediction with psychological consistency"""
         try:
-            # Get enhanced predictions (38 emotions)
+            # Get enhanced predictions
             emotion_scores = self.emotion_model.predict(features, audio_metadata)
             trait_scores = self.trait_model.predict(features, audio_metadata)
             
-            # Apply patent algorithms for advanced analysis
-            advanced_analysis = self._run_patent_algorithms(features, audio_metadata, emotion_scores)
-            
-            return emotion_scores, trait_scores, advanced_analysis
+            return emotion_scores, trait_scores
             
         except Exception as e:
-            logger.error(f"Error in patent-enhanced predictions: {e}")
+            logger.error(f"Error in enhanced predictions: {e}")
             # Fallback to basic predictions
-            emotion_scores = {f"emo{i}": 5.0 for i in range(1, 39)}  # 38 emotions
-            trait_scores = {f"char{i}": 50.0 for i in range(1, 95)}
-            advanced_analysis = {'error': str(e), 'fallback_mode': True}
-            return emotion_scores, trait_scores, advanced_analysis
-    
-    def _run_patent_algorithms(self, features: np.ndarray, audio_metadata: Dict[str, Any], 
-                             emotion_scores: Dict[str, float]) -> Dict[str, Any]:
-        """Execute all patent-validated algorithms"""
-        try:
-            analysis = {}
-            
-            # Binary Classification (80th percentile)
-            binary_results = binary_classifier.classify_emotions(emotion_scores)
-            analysis['binary_classification'] = binary_results
-            
-            # Probability scores for standardized comparison
-            analysis['probabilities'] = {k: v.get('probability', 0.5) for k, v in binary_results.items()}
-            
-            # Enneagram personality profiling
-            analysis['enneagram'] = enneagram_profiler.predict_enneagram(emotion_scores)
-            
-            # Stress response analysis
-            audio_features = self._extract_audio_features(features)
-            analysis['stress_response'] = stress_analyzer.analyze_stress_response(audio_features, emotion_scores)
-            
-            # Vibrational analysis
-            analysis['vibrational_analysis'] = self._simulate_vibrational_analysis(features)
-            
-            # Meta-emotions (emo29-emo32) - enhanced high-scale emotions
-            analysis['meta_emotions'] = self._calculate_meta_emotions(emotion_scores)
-            
-            return analysis
-            
-        except Exception as e:
-            logger.error(f"Error in patent algorithms: {e}")
-            return {'error': str(e)}
-    
-    def _extract_audio_features(self, features: np.ndarray) -> Dict[str, float]:
-        """Extract audio features for analysis"""
-        try:
-            return {
-                'energy_distribution': float(np.sum(np.abs(features))),
-                'temporal_stability': float(1.0 / (1.0 + np.std(features))),
-                'frequency_peaks': float(len(np.where(features > np.mean(features))[0])),
-                'spectral_centroid': float(np.mean(features))
-            }
-        except Exception:
-            return {'energy_distribution': 5.0, 'temporal_stability': 0.5, 'frequency_peaks': 10.0, 'spectral_centroid': 0.0}
-    
-    def _simulate_vibrational_analysis(self, features: np.ndarray) -> Dict[str, float]:
-        """Simulate vibrational frequency analysis"""
-        try:
-            total_energy = np.sum(np.abs(features))
-            return {
-                'expansion_frequency': float(np.mean(features[len(features)//2:]) if len(features) > 1 else 0.4),
-                'contraction_frequency': float(np.mean(features[:len(features)//2]) if len(features) > 1 else 0.3),
-                'harmonic_coherence': float(np.abs(np.corrcoef(features[:min(10, len(features))], features[-min(10, len(features)):])[0,1]) if len(features) > 10 else 0.5),
-                'frequency_stability': float(1.0 / (1.0 + np.var(features))),
-                'energy_flow': float(total_energy / len(features)) if len(features) > 0 else 0.5
-            }
-        except Exception:
-            return {'expansion_frequency': 0.4, 'contraction_frequency': 0.3, 'harmonic_coherence': 0.5, 'frequency_stability': 0.6, 'energy_flow': 0.5}
-    
-    def _calculate_meta_emotions(self, emotion_scores: Dict[str, float]) -> Dict[str, float]:
-        """Calculate meta-emotions (emo29-emo32) on 0-300+ scale"""
-        try:
-            # Meta-emotions are combinations of individual emotions on larger scale
-            positive_emotions = sum([emotion_scores.get(f'emo{i}', 0) for i in [1, 6, 5, 17]]) * 6.25  # Scale to 0-300
-            negative_emotions = sum([emotion_scores.get(f'emo{i}', 0) for i in [12, 14, 19, 8]]) * 6.25
-            energy_emotions = sum([emotion_scores.get(f'emo{i}', 0) for i in [15, 17, 27]]) * 8.33  # Higher scaling
-            calm_emotions = sum([emotion_scores.get(f'emo{i}', 0) for i in [5, 13, 28]]) * 8.33
-            
-            return {
-                'emo29': float(np.clip(positive_emotions, 0, 300)),
-                'emo30': float(np.clip(negative_emotions, 0, 300)), 
-                'emo31': float(np.clip(energy_emotions, 0, 300)),
-                'emo32': float(np.clip(calm_emotions, 0, 300))
-            }
-        except Exception:
-            return {'emo29': 150.0, 'emo30': 100.0, 'emo31': 120.0, 'emo32': 140.0}
+            emotion_scores = {f"emo{i}": 0.5 for i in range(1, 27)}
+            trait_scores = {f"char{i}": 0.5 for i in range(1, 95)}
+            return emotion_scores, trait_scores
     
     def get_model_info(self) -> Dict[str, Any]:
-        """Get patent-enhanced model information"""
+        """Get information about loaded models"""
         return {
-            'version': self.version,
-            'emotion_model': self.emotion_model.version,
-            'trait_model': self.trait_model.version,
-            'emotion_outputs': len(self.emotion_model.emotion_keys),
-            'trait_outputs': len(self.trait_model.trait_keys),
-            'patent_features': [
-                'Binary classification (80th percentile)',
-                'Probability scoring (0-1 scale)',
-                'Enneagram 9-archetype profiling',
-                'Vibrational frequency analysis',
-                'Stress response analysis (Fight/Flight/Freeze)',
-                'Meta-emotions (0-300 scale)',
-                'Wellbeing classification system',
-                'Audio-to-image pattern recognition'
-            ]
+            "version": self.version,
+            "emotion_model": {
+                "version": self.emotion_model.version,
+                "has_trained_model": self.emotion_model.model is not None,
+                "emotions_count": len(self.emotion_model.emotion_keys),
+                "meta_emotions_count": len(self.emotion_model.meta_emotion_keys),
+                "extended_emotions_count": len(self.emotion_model.extended_emotion_keys)
+            },
+            "trait_model": {
+                "version": self.trait_model.version,
+                "has_trained_model": self.trait_model.model is not None,
+                "traits_count": len(self.trait_model.trait_keys),
+                "bigfive_mapping": True
+            }
         }
 
 
-# Global enhanced model manager instance
+# Global model manager instance
 enhanced_model_manager = EnhancedModelManager()
