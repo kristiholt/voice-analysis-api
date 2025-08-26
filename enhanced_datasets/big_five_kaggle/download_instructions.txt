@@ -1,0 +1,11 @@
+
+# Big Five Kaggle Dataset Download Instructions
+1. Visit: https://www.kaggle.com/datasets/tunguz/big-five-personality-test
+2. Download the CSV file manually
+3. Place in: enhanced_datasets/big_five_kaggle/
+4. File should be named: big-five-personality-test.csv
+
+Alternatively, if you have Kaggle API set up:
+pip install kaggle
+kaggle datasets download -d tunguz/big-five-personality-test -p enhanced_datasets/big_five_kaggle/
+            

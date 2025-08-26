@@ -1,0 +1,33 @@
+
+Subject: Request for SPADE Dataset Access - Voice Analysis Research
+
+Dear SPADE Dataset Authors,
+
+I am writing to request access to the SPADE (Big Five-Mturk Dataset) for academic research purposes. I am working on enhancing voice-based personality analysis systems and would greatly benefit from your dataset's argumentative speech samples with Big Five personality labels.
+
+Research Purpose:
+- Developing improved personality trait recognition from speech
+- Comparing different acoustic feature extraction methods
+- Building scientifically-grounded voice analysis models
+
+I understand the dataset contains:
+- 436 psycholinguistic features
+- Socio-demographic data (age, gender, education, language background)  
+- Big Five personality trait annotations
+
+I commit to:
+- Using the data solely for academic research
+- Properly citing your work in any publications
+- Following ethical guidelines for human subject data
+
+Could you please provide information about the access process and any required agreements?
+
+Thank you for your consideration.
+
+Best regards,
+[Your Name]
+[Your Institution]
+[Your Email]
+
+Reference: SPADE: A Big Five-Mturk Dataset of Argumentative Speech Enriched with Socio-Demographics for Personality Detection (ACL 2022)
+        

@@ -1,0 +1,78 @@
+Subject: Supplementary Data Request: Speech-based Personality Prediction Study
+------------------------------------------------------------
+
+Dear Dr. [Corresponding Author],
+
+I hope you are well. I am writing regarding your recent publication in Scientific Reports: "Speech-based personality prediction using deep learning with acoustic and linguistic embeddings" (2024).
+
+## Research Interest
+Your groundbreaking work demonstrating 0.26-0.39 correlation between predicted and self-reported Big Five traits represents a significant advancement in computational personality assessment. I would be greatly interested in accessing your dataset to further this research direction.
+
+## Dataset Value for Research
+Your dataset's unique combination of:
+- 2,045 participants with comprehensive personality assessments
+- IPIP personality questionnaire responses (50 questions, 10 per trait)
+- Free-form self-introduction speech samples
+- Demographically representative UK population sample
+- Both acoustic and linguistic embedding features
+
+...makes it an invaluable resource for advancing voice-based personality research.
+
+## Research Application
+I am developing enhanced voice analysis systems with specific focus on:
+1. **Improving Correlation Accuracy**: Building on your 0.26-0.39 baseline
+2. **Multi-modal Integration**: Combining acoustic and linguistic approaches
+3. **Production Deployment**: Creating robust, scalable personality assessment tools
+4. **Cross-cultural Validation**: Testing generalization across populations
+
+## Scientific Contribution Goals
+- Replicate and extend your findings using complementary methodologies
+- Explore ensemble approaches combining multiple personality prediction models
+- Investigate temporal stability of speech-based personality predictions
+- Develop calibration techniques for more reliable clinical applications
+
+## Data Use Commitment
+I commit to:
+- Using data exclusively for academic research purposes
+- Following all ethical guidelines for participant data
+- Maintaining strict confidentiality and data security protocols
+- Properly attributing your foundational research
+- Sharing derived insights with the research community
+- Complying with any institutional review board requirements
+
+## Research Background
+- Specialization in computational psychology and voice analysis
+- Experience with large-scale speech processing and personality modeling
+- Commitment to reproducible, open science practices
+- Focus on ethical AI development for psychological assessment
+
+## Request Details
+Would it be possible to access:
+1. The complete dataset (or a representative subset)
+2. Feature extraction code/methodologies used
+3. Any preprocessing protocols or data cleaning procedures
+4. Evaluation metrics and validation protocols
+
+I understand that participant privacy is paramount and am prepared to sign any required data use agreements or institutional arrangements.
+
+## Potential Collaboration
+I would be delighted to discuss potential collaboration opportunities, including:
+- Joint publications extending this research
+- Complementary datasets or methodologies I could contribute
+- Code sharing for reproducible research
+- Cross-validation studies using different populations
+
+Thank you for pioneering this important research area. I look forward to the possibility of building upon your excellent work.
+
+Warmest regards,
+
+[Your Name]
+[Your Title/Position]
+[Your Institution]
+[Email Address]
+[ORCID/Research Profile]
+
+---
+Reference: Speech-based personality prediction using deep learning with acoustic and linguistic embeddings. Scientific Reports 14, Article number: 26957 (2024)
+DOI: https://doi.org/10.1038/s41598-024-81047-0
+            

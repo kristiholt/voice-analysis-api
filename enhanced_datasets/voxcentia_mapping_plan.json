@@ -1,0 +1,203 @@
+{
+  "big_five_to_voxcentia": {
+    "Openness": {
+      "voxcentia_traits": [
+        {
+          "code": "char9",
+          "component": "Groundbreaking"
+        },
+        {
+          "code": "char13",
+          "component": "Creative Mind"
+        },
+        {
+          "code": "char43",
+          "component": "Theoretically Trained"
+        },
+        {
+          "code": "char45",
+          "component": "Developer"
+        },
+        {
+          "code": "char70",
+          "component": "Breaking from Past"
+        },
+        {
+          "code": "char74",
+          "component": "Innovative Teamworker"
+        }
+      ],
+      "training_strategy": "Map high Openness scores to these traits"
+    },
+    "Conscientiousness": {
+      "voxcentia_traits": [
+        {
+          "code": "char26",
+          "component": "Silent Hard Worker"
+        },
+        {
+          "code": "char27",
+          "component": "Rigid sense of Duty"
+        },
+        {
+          "code": "char37",
+          "component": "Skilled"
+        },
+        {
+          "code": "char46",
+          "component": "Performance Leader"
+        },
+        {
+          "code": "char77",
+          "component": "Urge to Perform"
+        }
+      ],
+      "training_strategy": "Map high Conscientiousness to work-related traits"
+    },
+    "Extraversion": {
+      "voxcentia_traits": [
+        {
+          "code": "char7",
+          "component": "Pleasant Authority"
+        },
+        {
+          "code": "char10",
+          "component": "Leader"
+        },
+        {
+          "code": "char19",
+          "component": "Assertive"
+        },
+        {
+          "code": "char58",
+          "component": "Natural Leadership"
+        },
+        {
+          "code": "char61",
+          "component": "Influencer"
+        },
+        {
+          "code": "char71",
+          "component": "Convincing"
+        },
+        {
+          "code": "char91",
+          "component": "Talkative"
+        }
+      ],
+      "training_strategy": "Map high Extraversion to leadership/social traits"
+    },
+    "Agreeableness": {
+      "voxcentia_traits": [
+        {
+          "code": "char39",
+          "component": "Compassion"
+        },
+        {
+          "code": "char60",
+          "component": "Caring Conservative"
+        },
+        {
+          "code": "char66",
+          "component": "Diplomatic"
+        },
+        {
+          "code": "char72",
+          "component": "Supportive"
+        }
+      ],
+      "training_strategy": "Map high Agreeableness to caring/supportive traits"
+    },
+    "Neuroticism": {
+      "voxcentia_traits": [
+        {
+          "code": "char1",
+          "component": "Loss of Selfworth"
+        },
+        {
+          "code": "char11",
+          "component": "Worryier"
+        },
+        {
+          "code": "char15",
+          "component": "Doubting"
+        },
+        {
+          "code": "char24",
+          "component": "Restless"
+        },
+        {
+          "code": "char25",
+          "component": "Anger"
+        },
+        {
+          "code": "char31",
+          "component": "Inhibited by Fear"
+        },
+        {
+          "code": "char47",
+          "component": "Lonely"
+        }
+      ],
+      "training_strategy": "Map high Neuroticism to anxiety/worry traits"
+    }
+  },
+  "emotion_datasets_mapping": {
+    "baum_1_emotions": {
+      "joy": [
+        "emo1"
+      ],
+      "anger": [
+        "emo4",
+        "char25"
+      ],
+      "sadness": [
+        "emo9",
+        "emo11"
+      ],
+      "fear": [
+        "emo35",
+        "emo36",
+        "emo37",
+        "emo38"
+      ],
+      "surprise": [
+        "emo7"
+      ],
+      "thinking": [
+        "char14",
+        "emo15"
+      ],
+      "concentrating": [
+        "emo15"
+      ],
+      "unsure": [
+        "char38",
+        "char41"
+      ]
+    },
+    "meld_emotions": {
+      "joy": [
+        "emo1"
+      ],
+      "anger": [
+        "emo4"
+      ],
+      "sadness": [
+        "emo9"
+      ],
+      "fear": [
+        "emo35"
+      ],
+      "surprise": [
+        "emo7"
+      ],
+      "disgust": [
+        "emo4"
+      ],
+      "neutral": [
+        "emo5"
+      ]
+    }
+  }
+}

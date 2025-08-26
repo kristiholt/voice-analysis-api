@@ -1,0 +1,35 @@
+{
+  "timeline": {
+    "week_1": [
+      "Send SPADE dataset request (highest priority)",
+      "Send Nature 2024 dataset request",
+      "Follow up on any automated responses"
+    ],
+    "week_2": [
+      "Send BAUM-1 dataset request",
+      "Research additional speech+personality datasets",
+      "Prepare backup synthetic data generation plan"
+    ],
+    "week_3": [
+      "Follow up on pending requests",
+      "Negotiate data use agreements",
+      "Begin dataset integration planning"
+    ],
+    "week_4": [
+      "Finalize dataset access",
+      "Begin enhanced training with speech data",
+      "Prepare Track B implementation"
+    ]
+  },
+  "success_metrics": {
+    "spade_access": "436 participants with Big Five + argumentative speech",
+    "nature_access": "2,045 participants with IPIP + speech samples",
+    "baum1_access": "Complex emotional states with cognitive annotations",
+    "expected_improvement": "60-80% personality accuracy gain when combined"
+  },
+  "backup_plans": {
+    "plan_a": "Synthetic speech generation from text personality data",
+    "plan_b": "Crowdsource small speech+personality dataset (200-500 samples)",
+    "plan_c": "Partner with university psychology departments for data collection"
+  }
+}

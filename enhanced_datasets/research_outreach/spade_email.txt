@@ -1,0 +1,62 @@
+Subject: Research Collaboration Request: SPADE Dataset for Voice Analysis
+------------------------------------------------------------
+
+Dear SPADE Dataset Authors,
+
+I hope this email finds you well. I am writing to request access to your SPADE (Big Five-Mturk Dataset) for academic research purposes.
+
+## Research Context
+I am developing an advanced voice analysis system that predicts personality traits from speech patterns. Your dataset would be invaluable for training scientifically-grounded models that go beyond basic emotion recognition to capture complex psychological dimensions.
+
+## About SPADE Dataset Usage
+Your dataset's combination of:
+- 436 psycholinguistic features from argumentative speech
+- Big Five personality trait annotations
+- Rich socio-demographic data (age, gender, education, language background)
+
+...makes it uniquely suited for training robust personality prediction models.
+
+## Research Objectives
+1. **Enhance Personality Recognition**: Moving beyond basic emotions to capture nuanced psychological traits
+2. **Cross-Cultural Validation**: Using your demographic diversity to build globally applicable models  
+3. **Scientific Rigor**: Replacing placeholder models with evidence-based predictions
+
+## Commitment to Ethical Use
+I commit to:
+- Using the data solely for academic research purposes
+- Following all ethical guidelines for human subject data
+- Properly citing your foundational work in any publications
+- Sharing research findings that could benefit the community
+- Maintaining data confidentiality and participant privacy
+
+## Research Impact
+This work aims to advance the field of computational psychology by:
+- Creating more accurate personality assessment tools
+- Enabling better human-computer interaction systems
+- Contributing to mental health and career counseling applications
+
+## Academic Credentials
+- Developing production-grade voice analysis systems
+- Focus on psychological AI and personality computing
+- Committed to reproducible, ethical research practices
+
+Could you please provide information about:
+1. Dataset access procedures and requirements
+2. Any licensing agreements or usage terms
+3. Timeline for potential access approval
+
+I would be happy to provide additional information about the research project or discuss potential collaboration opportunities.
+
+Thank you very much for your time and consideration. Your work has been instrumental in advancing speech-based personality research.
+
+Best regards,
+
+[Your Name]
+[Your Institution/Organization]
+[Your Email]
+[Research Profile/Website]
+
+---
+Reference: Benamara, F. et al. (2022). SPADE: A Big Five-Mturk Dataset of Argumentative Speech Enriched with Socio-Demographics for Personality Detection. LREC 2022.
+Dataset URL: https://aclanthology.org/2022.lrec-1.688/
+            

@@ -1,0 +1,33 @@
+
+Subject: Supplementary Data Request - Speech-based Personality Prediction Study
+
+Dear Authors,
+
+I am writing regarding your recent publication in Scientific Reports (2024): "Speech-based personality prediction using deep learning with acoustic and linguistic embeddings."
+
+I am particularly interested in the dataset of 2,045 participants with personality questionnaires and speech samples. This would be invaluable for my research on improving voice-based psychological analysis systems.
+
+Research Application:
+- Enhancing personality trait recognition accuracy
+- Developing better acoustic-linguistic feature fusion
+- Building production-ready voice analysis systems
+
+I understand from your paper that the dataset includes:
+- IPIP personality questionnaire responses (50 questions, 10 per trait)
+- Free-form self-introduction speech samples  
+- Demographic distribution representative of UK population
+- Both acoustic and linguistic embeddings
+
+Would it be possible to access this dataset or a subset for research purposes? I am happy to sign any required data use agreements and follow ethical guidelines for participant data.
+
+I would be glad to share any research findings that result from this work.
+
+Thank you for your time and consideration.
+
+Best regards,
+[Your Name]
+[Your Institution]
+[Your Email]
+
+Reference: https://www.nature.com/articles/s41598-024-81047-0
+        

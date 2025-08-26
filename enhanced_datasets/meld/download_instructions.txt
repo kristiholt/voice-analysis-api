@@ -1,0 +1,18 @@
+
+# MELD (Multimodal EmotionLines Dataset) Download
+MELD contains conversational emotions from Friends episodes.
+
+Download Links:
+1. Main dataset: https://web.eecs.umich.edu/~mihalcea/downloads/MELD.Raw.tar.gz
+2. Features: https://web.eecs.umich.edu/~mihalcea/downloads/MELD_features_raw.tar.gz
+
+Manual Download:
+wget https://web.eecs.umich.edu/~mihalcea/downloads/MELD.Raw.tar.gz
+tar -xzf MELD.Raw.tar.gz
+
+Dataset Information:
+- 13,708 utterances from Friends episodes
+- 7 emotions: anger, disgust, sadness, joy, neutral, surprise, fear  
+- Multiple speakers per conversation
+- Audio + text + video modalities available
+            

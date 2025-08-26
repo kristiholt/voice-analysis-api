@@ -1,0 +1,25 @@
+/* Additional component-specific styles */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--secondary);
+}
+
+.error {
+  background: #fee2e2;
+  color: var(--danger);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  text-align: center;
+}

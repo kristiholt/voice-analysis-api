@@ -1,0 +1,68 @@
+{
+  "schema_mapping": {
+    "description": "Mapping between RAVDESS emotions and Voxcentia psychological dimensions",
+    "ravdess_emotions": [
+      {"id": 0, "label": "neutral"},
+      {"id": 1, "label": "calm"}, 
+      {"id": 2, "label": "happy"},
+      {"id": 3, "label": "sad"},
+      {"id": 4, "label": "angry"},
+      {"id": 5, "label": "fearful"},
+      {"id": 6, "label": "surprise"},
+      {"id": 7, "label": "disgust"}
+    ],
+    "voxcentia_emotion_mappings": {
+      "emo1": {
+        "component": "happiness",
+        "description": "Feeling joy, contentment, and positivity", 
+        "ravdess_source": ["happy", "calm"]
+      },
+      "emo4": {
+        "component": "anger",
+        "description": "Experiencing irritation, frustration, or hostility",
+        "ravdess_source": ["angry"]
+      },
+      "emo5": {
+        "component": "relax", 
+        "description": "State of calm, rest, and ease",
+        "ravdess_source": ["calm", "neutral"]
+      },
+      "emo6": {
+        "component": "love",
+        "description": "Warmth, affection, and emotional closeness",
+        "ravdess_source": ["happy", "calm"]
+      },
+      "emo7": {
+        "component": "stress positive",
+        "description": "Excited or motivated stress (energizing)", 
+        "ravdess_source": ["surprise"]
+      },
+      "emo9": {
+        "component": "sadness",
+        "description": "Heavy, down, or sorrowful mood",
+        "ravdess_source": ["sad"]
+      },
+      "emo11": {
+        "component": "lonely",
+        "description": "Feeling isolated, disconnected, or alone",
+        "ravdess_source": ["sad", "neutral"]
+      }
+    },
+    "personality_trait_approach": {
+      "note": "Personality traits (char1-char94) require different training data",
+      "recommendation": "Current models provide baseline estimates based on vocal patterns",
+      "future_improvement": "Require dataset with personality trait labels for accurate training"
+    }
+  },
+  "current_model_limitations": {
+    "emotion_accuracy": "Moderate - 7/26 emotions have direct RAVDESS mappings",
+    "trait_accuracy": "Limited - personality traits inferred from vocal patterns without direct training labels",
+    "recommendation": "Results provide directional insights but should not be considered clinically accurate"
+  },
+  "next_steps": [
+    "Keep original mapping for semantic reference",
+    "Document model limitations in API responses", 
+    "Consider retraining with personality-labeled dataset",
+    "Map RAVDESS emotions to closest Voxcentia equivalents"
+  ]
+}

@@ -1,0 +1,43 @@
+[deployment]
+# Direct deployment - main FastAPI app runs on port 80 with health checks
+run = "cd production_package && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-80} --workers 1"
+# Previous dual-app setup (health app on port 80, main API on port 8000):
+# run = "cd production_package && python3 start_health_and_main.py"
+
+# Build command - ONLY install minimal production dependencies
+build = "cd production_package && pip install --no-deps --no-cache-dir -r requirements.txt || pip install --no-cache-dir -r requirements.txt"
+
+# Specify that this is a web service
+deploymentTarget = "cloudrun"
+
+# Configure port exposure for deployment - FastAPI server on port 80
+[[ports]]
+localPort = 80
+externalPort = 80
+
+[env]
+# Environment variables for deployment
+APP_ENV = "production"
+PORT = "80"
+HOST = "0.0.0.0"
+
+# Cloud Run specific configuration
+[deployment.cloudrun]
+# Health check configuration - supports both GET and HEAD requests
+healthcheck = "/"
+# Startup timeout for health checks (in seconds) - faster without large datasets
+startup_timeout = 120
+# CPU allocation
+cpu = 1
+# Memory allocation - reduced since we removed training data
+memory = "512Mi"
+# Minimum instances
+min_instances = 0
+# Maximum instances  
+max_instances = 10
+# Health check interval
+health_check_timeout = 10
+# HTTP liveness probe configuration
+liveness_probe = "/"
+# HTTP readiness probe configuration
+readiness_probe = "/ready"
