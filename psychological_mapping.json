@@ -15,7 +15,7 @@
       "emo1": {
         "component": "happiness",
         "description": "Feeling joy, contentment, and positivity", 
-        "ravdess_source": ["happy", "calm"]
+        "ravdess_source": ["happy"]
       },
       "emo4": {
         "component": "anger",
