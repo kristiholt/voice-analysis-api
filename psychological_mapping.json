@@ -37,7 +37,6 @@
           "code": "emo31", 
           "label": "valence_overall",
           "description": "Balance of positive vs negative mood and ability to express authentic self",
-          "calculation": "Balance between positive and negative emotional states",
           "scale": "0-100"
         },
         "self_management": {
