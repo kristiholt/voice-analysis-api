@@ -9,8 +9,9 @@ from datetime import datetime, timezone
 import logging
 import json
 
-from .storage import storage
-from .utils import get_env_var
+from app.storage import storage
+from app.utils import get_env_var
+from app.schema import WellbeingModel
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,8 @@ class PostProcessor:
     
     def __init__(self):
         self.normalization_scheme = get_env_var("NORMALIZATION_SCHEME", "zscore_rolling30d")
-        self.window_days = int(get_env_var("NORMALIZATION_WINDOW_DAYS", "30"))
+        window_days_str = get_env_var("NORMALIZATION_WINDOW_DAYS", "30")
+        self.window_days = int(window_days_str or "30")
         
     async def normalize_scores(self, emotion_scores: Dict[str, float], trait_scores: Dict[str, float]) -> Tuple[Dict[str, float], Dict[str, float], Dict[str, Any]]:
         """
@@ -35,7 +37,7 @@ class PostProcessor:
         """
         try:
             # Get normalization baselines
-            baselines = await storage.get_normalization_baselines(self.normalization_scheme)
+            baselines = await storage.get_normalization_baselines(self.normalization_scheme or "zscore_rolling30d")
             
             if baselines:
                 # Apply z-score normalization
@@ -115,24 +117,27 @@ class PostProcessor:
     
     def _apply_legacy_scale_mapping(self, scores: Dict[str, float]) -> Dict[str, float]:
         """
-        Apply legacy scale mapping to convert [0,1] scores to [0,100] range.
+        Apply standardized 0-100 scale mapping for all score types.
         
-        This function can be replaced with actual legacy mapping when available.
+        Converts all measurements to consistent 0-100 percentile scale.
+        All scores coming from normalization are in [0,1] range and need consistent conversion.
         """
-        # PLACEHOLDER: Replace with actual legacy mapping function
-        # For now, simple linear scaling to 0-100
-        legacy_scores = {}
+        standardized_scores = {}
         
         for key, value in scores.items():
-            # Ensure value is in [0, 1] range
+            # All normalized scores should be in [0,1] range
+            # Convert consistently to [0,100] scale
+            
+            # First, ensure value is in valid range for conversion
             clamped_value = max(0.0, min(1.0, value))
             
-            # Scale to 0-100 range
-            legacy_value = clamped_value * 100.0
+            # Convert to 0-100 scale
+            standardized_value = clamped_value * 100.0
             
-            legacy_scores[key] = float(np.round(legacy_value, 2))
+            # Round to 2 decimal places for consistency
+            standardized_scores[key] = float(np.round(standardized_value, 2))
         
-        return legacy_scores
+        return standardized_scores
     
     async def compute_normalization_baselines(self, days: Optional[int] = None) -> Dict[str, Any]:
         """
@@ -224,6 +229,31 @@ class PostProcessor:
                 }
         
         return stats
+    
+    async def classify_wellbeing(self, emotion_scores: Dict[str, float], 
+                               trait_scores: Dict[str, float]) -> WellbeingModel:
+        """Classify wellbeing using Struggling/OK/Thriving system"""
+        try:
+            # Import here to avoid circular imports
+            from .patent_algorithms import wellbeing_classifier
+            
+            wellbeing_data = wellbeing_classifier.classify_wellbeing(emotion_scores, trait_scores)
+            
+            return WellbeingModel(
+                overall_status=wellbeing_data['overall_status'],
+                confidence_score=wellbeing_data['confidence_score'],
+                individual_classifications=wellbeing_data['individual_classifications'],
+                thresholds_used=wellbeing_data['thresholds_used']
+            )
+            
+        except Exception as e:
+            logger.error(f"Error in wellbeing classification: {e}")
+            return WellbeingModel(
+                overall_status='OK',
+                confidence_score=0.5,
+                individual_classifications={},
+                thresholds_used={'struggling': 33.33, 'thriving': 66.66}
+            )
 
 
 # Global post-processor instance
